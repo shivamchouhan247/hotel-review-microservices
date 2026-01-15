@@ -2,6 +2,9 @@ package com.hotelreview.rating.service.impl;
 
 import com.hotelreview.rating.dto.request.RatingRequest;
 import com.hotelreview.rating.dto.response.RatingResponse;
+import com.hotelreview.rating.entity.Rating;
+import com.hotelreview.rating.exception.ResourceNotFoundException;
+import com.hotelreview.rating.mapper.RatingMapper;
 import com.hotelreview.rating.repository.RatingRepository;
 import com.hotelreview.rating.service.RatingService;
 import org.springframework.stereotype.Service;
@@ -18,12 +21,14 @@ public class RatingServiceImpl implements RatingService {
 
     @Override
     public RatingResponse saveRating(RatingRequest request) {
-        return null;
+        Rating rating = ratingRepository.save(RatingMapper.toEntity(request));
+        return RatingMapper.toRatingResponse(rating);
     }
 
     @Override
     public RatingResponse getRatingById(String ratingId) {
-        return null;
+        Rating rating = ratingRepository.findById(ratingId).orElseThrow(() -> new ResourceNotFoundException("Rating does not exist with the given ratingId: " + ratingId));
+        return RatingMapper.toRatingResponse(rating);
     }
 
     @Override
