@@ -4,6 +4,14 @@ import com.hotelreview.rating.entity.Rating;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+import java.util.Optional;
+
 @Repository
 public interface RatingRepository extends MongoRepository<Rating, String> {
+    public List<Rating> findByUserId(String userId);
+
+    public List<Rating> findByHotelId(String hotelId);
+
+    public Optional<Rating> findByUserIdAndHotelId(String userId, String hotelId);
 }

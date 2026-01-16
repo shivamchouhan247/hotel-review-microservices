@@ -7,12 +7,13 @@ import com.hotelreview.rating.entity.Rating;
 public class RatingMapper {
     public static Rating toEntity(RatingRequest request) {
         return Rating.builder()
-                .userId(request.getUserId())
-                .hotelId(request.getHotelId())
+                .userId(request.getUserId().trim())
+                .hotelId(request.getHotelId().trim())
                 .rating(request.getRating())
-                .feedback(request.getFeedback())
+                .feedback(request.getFeedback().trim())
                 .build();
     }
+
 
     public static RatingResponse toRatingResponse(Rating rating) {
         return RatingResponse.builder()

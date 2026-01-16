@@ -1,6 +1,7 @@
 package com.hotelreview.rating.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.springframework.validation.annotation.Validated;
 
@@ -15,8 +16,8 @@ public class RatingRequest {
     private String userId;
     @NotBlank(message = "hotelId is mandatory")
     private String hotelId;
-    @NotBlank(message = "rating is mandatory")
-    private int rating;
+    @NotNull(message = "rating is mandatory")
+    private Integer rating;
     @NotBlank(message = "feedback is mandatory")
     private String feedback;
 }
