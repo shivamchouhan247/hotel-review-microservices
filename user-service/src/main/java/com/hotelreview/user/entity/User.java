@@ -30,6 +30,7 @@ public class User {
     private Date creationDate;
 
     @Transient
+    @Builder.Default
     private List<Rating> ratings = new ArrayList<>();
 
 }
