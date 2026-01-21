@@ -1,6 +1,7 @@
 package com.hotelreview.hotel.controller;
 
 import com.hotelreview.hotel.dto.common.ApiResponse;
+import com.hotelreview.hotel.dto.request.HotelBatchRequest;
 import com.hotelreview.hotel.dto.request.HotelRequest;
 import com.hotelreview.hotel.dto.response.HotelResponse;
 import com.hotelreview.hotel.entity.Hotel;
@@ -10,11 +11,14 @@ import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/api/v1/hotels")
@@ -46,6 +50,14 @@ public class HotelController {
     public ResponseEntity<ApiResponse> getHotels() {
         LOGGER.info("Get all hotel details request is recieved");
         List<HotelResponse> hotels = hotelService.getHotels();
+        ApiResponse apiResponse = CommonLogic.generateApiResponse(HttpStatus.OK.value(), "SUCCESS", hotels);
+        return ResponseEntity.ok(apiResponse);
+    }
+
+    @PostMapping("/batch")
+    public ResponseEntity<ApiResponse> getHotelsDetail(@Valid @RequestBody HotelBatchRequest request) {
+        List<String> hotelIds = request.getHotelIds();
+        List<HotelResponse> hotels = hotelService.getBatchHotelDetails(hotelIds);
         ApiResponse apiResponse = CommonLogic.generateApiResponse(HttpStatus.OK.value(), "SUCCESS", hotels);
         return ResponseEntity.ok(apiResponse);
     }

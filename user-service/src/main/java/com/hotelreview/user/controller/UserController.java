@@ -39,6 +39,10 @@ public class UserController {
 
     @GetMapping("/users/{userId}")
     public ResponseEntity<ApiResponse> getUser(@PathVariable(name = "userId") String userId) {
+        if (userId == null || userId.trim().isEmpty()) {
+            throw new IllegalArgumentException("User id must not be null or empty");
+        }
+        LOGGER.info("Get user request recieved for userId: {}", userId);
         UserResponse userResponse = userService.getUser(userId);
         ApiResponse apiResponse = CommonLogic.generateApiResponse(HttpStatus.OK.value(), "SUCCESS", userResponse);
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);

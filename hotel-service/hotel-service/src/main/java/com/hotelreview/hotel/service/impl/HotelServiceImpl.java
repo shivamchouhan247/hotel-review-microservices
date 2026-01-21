@@ -12,7 +12,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class HotelServiceImpl implements HotelService {
@@ -53,4 +54,24 @@ public class HotelServiceImpl implements HotelService {
         }
         return hotels;
     }
+
+    @Override
+    public List<HotelResponse> getBatchHotelDetails(List<String> hotelIds) {
+        if (hotelIds.size() > 50) {
+            throw new IllegalArgumentException("Batch limit exceed");
+        }
+
+        List<Integer> ids = hotelIds.stream().distinct().map(Integer::parseInt).toList();
+
+        List<Hotel> hotelList = hotelRepository.findByHotelIdIn(ids);
+
+        Map<Integer, Hotel> hotelMap = hotelList.stream().collect(Collectors.toMap(Hotel::getHotelId, h -> h));
+
+        return ids.stream()
+                .map(hotelMap::get)
+                .filter(Objects::nonNull)
+                .map(HotelMapper::toHotelResponse)
+                .toList();
+    }
+
 }

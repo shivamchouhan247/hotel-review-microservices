@@ -8,6 +8,10 @@ import java.util.List;
 
 public interface HotelService {
     public HotelResponse saveHotel(HotelRequest request);
+
     public HotelResponse getHotel(Integer hotelId);
+
     public List<HotelResponse> getHotels();
+
+    public List<HotelResponse> getBatchHotelDetails(List<String> hotelIds);
 }
