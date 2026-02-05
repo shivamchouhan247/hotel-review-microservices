@@ -48,12 +48,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse getUser(String userId) {
-
+        LOGGER.info("Processing get user details request");
         User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User does not exist with the give userId: " + userId));
         try {
+            LOGGER.info("Calling rating service:");
             List<Rating> ratings = ratingService.getUserRatings(userId);
             if (!ratings.isEmpty()) {
                 List<Integer> hotelIds = ratings.stream().map(r -> Integer.parseInt(r.getHotelId())).toList();
+                LOGGER.info("Calling hotel service ");
                 List<Hotel> hotelList = hotelService.getBatchHotels(hotelIds);
 
                 if (!hotelList.isEmpty()) {
