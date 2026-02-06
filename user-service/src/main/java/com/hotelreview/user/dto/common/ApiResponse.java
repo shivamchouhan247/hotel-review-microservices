@@ -11,12 +11,12 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class ApiResponse {
+public class ApiResponse<T> {
     private int code;
     private String status;
-    private Object data;
+    private T data;
     @Builder.Default
-    private LocalDateTime timestamp=LocalDateTime.now();
+    private LocalDateTime timestamp = LocalDateTime.now();
 
 
 }
