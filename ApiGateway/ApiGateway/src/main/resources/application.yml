@@ -1,0 +1,35 @@
+spring:
+  application:
+    name: api-gateway
+
+  cloud:
+    gateway:
+      routes:
+        - id: user_service
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path=/api/v1/users/**
+        - id: hotel_service
+          uri: lb://HOTEL-SERVICE
+          predicates:
+            - Path=/api/v1/hotels/**
+        - id: rating_service
+          uri: lb://RATING-SERVICE
+          predicates:
+            - Path=/api/v1/ratings/**
+
+server:
+  port: 8084
+
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
