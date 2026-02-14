@@ -8,18 +8,20 @@ import com.hotelreview.hotel.entity.Hotel;
 import com.hotelreview.hotel.service.HotelService;
 import com.hotelreview.hotel.util.CommonLogic;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-
+@Validated
 @RestController
 @RequestMapping("/api/v1/hotels")
 public class HotelController {
@@ -39,7 +41,7 @@ public class HotelController {
     }
 
     @GetMapping("/{hotelId}")
-    public ResponseEntity<ApiResponse> getHotel(@PathVariable Integer hotelId) {
+    public ResponseEntity<ApiResponse> getHotel(@PathVariable @Positive Integer hotelId) {
         LOGGER.info("Get Hotel details request is recieved for hotel id: {}", hotelId);
         HotelResponse hotelResponse = hotelService.getHotel(hotelId);
         ApiResponse apiResponse = CommonLogic.generateApiResponse(HttpStatus.OK.value(), "SUCCESS", hotelResponse);

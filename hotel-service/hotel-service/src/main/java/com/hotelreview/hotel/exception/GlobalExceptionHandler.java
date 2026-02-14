@@ -2,6 +2,7 @@ package com.hotelreview.hotel.exception;
 
 import com.hotelreview.hotel.dto.common.ApiResponse;
 import com.hotelreview.hotel.util.CommonLogic;
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,6 +11,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.util.Map;
@@ -56,6 +58,24 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse> handleNoResourceFoundException(NoResourceFoundException e) {
         ApiResponse apiResponse = CommonLogic.generateApiResponse(HttpStatus.BAD_REQUEST.value(), "ERROR", "Invalid endpoint or missing path variable");
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiResponse);
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ApiResponse> handleTypeMistmatch(MethodArgumentTypeMismatchException ex) {
+        String parameter = ex.getName();
+        String parameterValue = ex.getValue().toString();
+        String message = String.format("Invalid value '%s' for parameter '%s'", parameterValue, parameter);
+        ApiResponse apiResponse = CommonLogic.generateApiResponse(HttpStatus.BAD_REQUEST.value(), "Error", message);
+        return new ResponseEntity<>(apiResponse, HttpStatus.BAD_REQUEST);
+
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ApiResponse> handleConstraintVoilation(ConstraintViolationException ex) {
+        String msg = ex.getMessage();
+        ApiResponse apiResponse = CommonLogic.generateApiResponse(HttpStatus.BAD_REQUEST.value(), "Error", msg);
+        return new ResponseEntity<>(apiResponse, HttpStatus.BAD_REQUEST);
+
     }
 
     @ExceptionHandler(Exception.class)

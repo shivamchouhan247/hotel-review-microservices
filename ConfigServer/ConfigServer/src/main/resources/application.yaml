@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: Config-Server
+
+  cloud:
+    config:
+      server:
+        git:
+          uri: https://github.com/shivamchouhan247/hotel-config-server
+server:
+  port: 8085
+
