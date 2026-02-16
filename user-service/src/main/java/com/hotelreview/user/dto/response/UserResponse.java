@@ -19,6 +19,8 @@ public class UserResponse {
     private String name;
     private String email;
     private String about;
+    @Builder.Default
+    private boolean isDegraded = false;
     private Date creationDate;
-    private List<Rating> ratings=new ArrayList<>();
+    private List<Rating> ratings = new ArrayList<>();
 }

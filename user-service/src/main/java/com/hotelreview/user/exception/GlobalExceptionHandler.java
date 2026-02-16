@@ -70,9 +70,19 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiResponse> handleGenericException(Exception ex) {
-        ApiResponse apiResponse = CommonLogic.generateApiResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), "ERROR", "Internal server error");
+    public ResponseEntity<ApiResponse<String>> handleGenericException(Exception ex) {
+        ApiResponse<String> apiResponse = CommonLogic.generateApiResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), "ERROR", "Internal server error");
         return new ResponseEntity<>(apiResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(ExternalServiceException.class)
+    public ResponseEntity<ApiResponse<?>> handleExternalServiceException(ExternalServiceException e) {
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+                .body(CommonLogic.generateApiResponse(
+                        HttpStatus.SERVICE_UNAVAILABLE.value(),
+                        "SERVICE UNAVAILABLE",
+                        e.getMessage()
+                ));
     }
 
     @ExceptionHandler(HttpMediaTypeNotSupportedException.class)

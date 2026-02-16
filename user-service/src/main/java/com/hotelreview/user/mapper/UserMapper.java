@@ -27,7 +27,8 @@ public class UserMapper {
                 .email(user.getEmail())
                 .about(user.getAbout())
                 .creationDate(user.getCreationDate())
-                .ratings(user.getRatings()).build();
+                .ratings(user.getRatings())
+                .build();
     }
 
 }

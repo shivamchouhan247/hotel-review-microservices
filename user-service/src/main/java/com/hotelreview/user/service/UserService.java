@@ -15,6 +15,6 @@ public interface UserService {
     public User updateUser(User user);
 
     public List<UserResponse> getAllUser();
-
-    public UserResponse getUser(String userId);
+    public User getUser(String userId);
+    public UserResponse getUserDetails(String userId);
 }

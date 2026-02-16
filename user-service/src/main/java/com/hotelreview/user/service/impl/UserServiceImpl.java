@@ -8,15 +8,22 @@ import com.hotelreview.user.entity.Hotel;
 import com.hotelreview.user.entity.Rating;
 import com.hotelreview.user.entity.User;
 import com.hotelreview.user.exception.DuplicateResourceException;
+import com.hotelreview.user.exception.ExternalServiceException;
 import com.hotelreview.user.exception.ResourceNotFoundException;
 import com.hotelreview.user.external.service.HotelService;
 import com.hotelreview.user.external.service.RatingService;
 import com.hotelreview.user.mapper.UserMapper;
 import com.hotelreview.user.repository.UserRepository;
 import com.hotelreview.user.service.UserService;
+import com.hotelreview.user.util.CommonLogic;
+import feign.FeignException;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,15 +34,15 @@ import java.util.stream.Collectors;
 @Service
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
-    @Autowired
     private RatingService ratingService;
-    @Autowired
     private HotelService hotelService;
 
     private final static Logger LOGGER = LoggerFactory.getLogger(UserServiceImpl.class);
 
     public UserServiceImpl(UserRepository userRepository, RatingService ratingService, HotelService hotelService) {
         this.userRepository = userRepository;
+        this.ratingService = ratingService;
+        this.hotelService = hotelService;
     }
 
     @Override
@@ -50,7 +57,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserResponse getUser(String userId) {
+    public User getUser(String userId) {
+        return userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User does not exist with the give userId: " + userId));
+    }
+
+    @Override
+    @Retry(name = "ratingHotelRetry", fallbackMethod = "getUserDetailsFallbackMethod")
+//    @CircuitBreaker(name = "ratingHotelBreaker", fallbackMethod = "getUserDetailsFallbackMethod")
+    public UserResponse getUserDetails(String userId) {
         LOGGER.info("Processing get user details request");
         User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User does not exist with the give userId: " + userId));
         try {
@@ -72,22 +86,32 @@ public class UserServiceImpl implements UserService {
                             r.setHotel(hotelMap.get(r.getHotelId()))
                     );
                 }
-            }else{
+            } else {
                 LOGGER.info("No rating found for user ");
             }
             user.setRatings(ratings);
         } catch (Exception e) {
-            LOGGER.error(e.getMessage());
+            LOGGER.error("Error: {}", e.getMessage());
+            throw e;
+
         }
         return UserMapper.toUserResponse(user);
+    }
+
+    public UserResponse getUserDetailsFallbackMethod(String userId, Throwable ex) {
+        LOGGER.error("Fallback triggered for userId: {} , reason: {}", userId, ex.getMessage());
+        User user = getUser(userId);
+        UserResponse userResponse = UserMapper.toUserResponse(user);
+        userResponse.setDegraded(true);
+        return userResponse;
     }
 
     @Transactional
     @Override
     public UserResponse deleteUser(String userId) {
-        UserResponse userResponse = getUser(userId);
+        User user = getUser(userId);
         userRepository.deleteById(userId);
-        return userResponse;
+        return UserMapper.toUserResponse(user);
     }
 
     @Override

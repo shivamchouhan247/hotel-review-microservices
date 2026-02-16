@@ -61,6 +61,16 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(apiResponse, HttpStatus.CONFLICT);
     }
 
+    @ExceptionHandler(ExternalServiceException.class)
+    public ResponseEntity<ApiResponse> handleExternalServiceException(ExternalServiceException e) {
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+                .body(CommonLogic.generateApiResponse(
+                        HttpStatus.SERVICE_UNAVAILABLE.value(),
+                        "SERVICE UNAVAILABLE",
+                        e.getMessage()
+                ));
+    }
+
     @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
     public ResponseEntity<ApiResponse> handleMediaTypeNotSupported(
             HttpMediaTypeNotSupportedException ex) {

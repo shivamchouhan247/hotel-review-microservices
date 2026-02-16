@@ -42,6 +42,7 @@ public class RatingController {
 
     @GetMapping("users/{userId}")
     public ResponseEntity<ApiResponse> getRatingByUserId(@PathVariable String userId) {
+        LOGGER.info("Request recieved for ratings with userId: {}", userId);
         List<RatingResponse> ratings = ratingService.getRatingByuserId(userId);
         ApiResponse apiResponse = CommonLogic.generateApiResponse(HttpStatus.OK.value(), "SUCCESS", ratings);
         return ResponseEntity.ok(apiResponse);
@@ -49,7 +50,7 @@ public class RatingController {
 
     @GetMapping("hotels/{hotelId}")
     public ResponseEntity<ApiResponse> getRatingByHotelId(@PathVariable String hotelId) {
-        LOGGER.info("Get rating request recieved for hotelId: "+hotelId);
+        LOGGER.info("Get rating request recieved for hotelId: " + hotelId);
         List<RatingResponse> ratings = ratingService.getRatingByhotelId(hotelId);
         ApiResponse apiResponse = CommonLogic.generateApiResponse(HttpStatus.OK.value(), "SUCCESS", ratings);
         return ResponseEntity.ok(apiResponse);

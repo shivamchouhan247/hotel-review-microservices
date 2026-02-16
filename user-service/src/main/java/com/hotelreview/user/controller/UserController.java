@@ -4,8 +4,10 @@ import com.hotelreview.user.dto.common.ApiResponse;
 import com.hotelreview.user.dto.request.CreateUserRequest;
 import com.hotelreview.user.dto.response.UserResponse;
 import com.hotelreview.user.entity.User;
+import com.hotelreview.user.mapper.UserMapper;
 import com.hotelreview.user.service.UserService;
 import com.hotelreview.user.util.CommonLogic;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,15 +41,17 @@ public class UserController {
     }
 
     @GetMapping("/users/{userId}")
-    public ResponseEntity<ApiResponse> getUser(@PathVariable(name = "userId") String userId) {
+    public ResponseEntity<ApiResponse<UserResponse>> getUser(@PathVariable(name = "userId") String userId) {
         if (userId == null || userId.trim().isEmpty()) {
             throw new IllegalArgumentException("User id must not be null or empty");
         }
         LOGGER.info("Get user request recieved for userId: {}", userId);
-        UserResponse userResponse = userService.getUser(userId);
-        ApiResponse apiResponse = CommonLogic.generateApiResponse(HttpStatus.OK.value(), "SUCCESS", userResponse);
+        UserResponse userResponse = userService.getUserDetails(userId);
+        ApiResponse<UserResponse> apiResponse = CommonLogic.generateApiResponse(HttpStatus.OK.value(), userResponse.isDegraded()?"PARTIAL_SUCCESS":"SUCCESS", userResponse);
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
+
+
 
     @DeleteMapping("/users/{userId}")
     public ResponseEntity<ApiResponse> deleteUser(@PathVariable(name = "userId") String userId) {
