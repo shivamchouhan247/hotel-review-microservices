@@ -2,6 +2,9 @@ package com.hotelreview.user.exception;
 
 import com.hotelreview.user.dto.common.ApiResponse;
 import com.hotelreview.user.util.CommonLogic;
+import io.github.resilience4j.ratelimiter.RequestNotPermitted;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +23,7 @@ import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+    private Logger LOGGER = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ApiResponse> handleResourceNotFoundException(ResourceNotFoundException ex) {
@@ -83,6 +87,13 @@ public class GlobalExceptionHandler {
                         "SERVICE UNAVAILABLE",
                         e.getMessage()
                 ));
+    }
+
+    @ExceptionHandler(RequestNotPermitted.class)
+    public ResponseEntity<ApiResponse<?>> handleToManyRequest(RequestNotPermitted ex) {
+        LOGGER.error("Too many request. Api Access limit exceed. {}", ex.getMessage());
+        ApiResponse<?> apiResponse = CommonLogic.generateApiResponse(HttpStatus.TOO_MANY_REQUESTS.value(), "RATE_LIMIT_EXCEEDED", "Too many requests. Please try again later.");
+        return new ResponseEntity<>(apiResponse, HttpStatus.TOO_MANY_REQUESTS);
     }
 
     @ExceptionHandler(HttpMediaTypeNotSupportedException.class)

@@ -18,6 +18,7 @@ import com.hotelreview.user.service.UserService;
 import com.hotelreview.user.util.CommonLogic;
 import feign.FeignException;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import io.github.resilience4j.retry.annotation.Retry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,7 +64,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Retry(name = "ratingHotelRetry", fallbackMethod = "getUserDetailsFallbackMethod")
-//    @CircuitBreaker(name = "ratingHotelBreaker", fallbackMethod = "getUserDetailsFallbackMethod")
+    @CircuitBreaker(name = "ratingHotelBreaker", fallbackMethod = "getUserDetailsFallbackMethod")
     public UserResponse getUserDetails(String userId) {
         LOGGER.info("Processing get user details request");
         User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User does not exist with the give userId: " + userId));

@@ -1,5 +1,9 @@
 server:
   port: 8081
+  tomcat:
+    threads:
+      max: 400
+      min-spare: 20
 
 spring:
   datasource:
@@ -7,6 +11,8 @@ spring:
     username: root
     password: theboy$G$Kpc2
     driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 20
   jpa:
     hibernate:
       ddl-auto: update
@@ -40,3 +46,6 @@ rating:
 hotel:
   service:
     baseUrl: http://HOTEL-SERVICE
+
+
+

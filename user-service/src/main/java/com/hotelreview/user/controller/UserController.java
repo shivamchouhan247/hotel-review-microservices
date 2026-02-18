@@ -8,6 +8,7 @@ import com.hotelreview.user.mapper.UserMapper;
 import com.hotelreview.user.service.UserService;
 import com.hotelreview.user.util.CommonLogic;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,18 +41,17 @@ public class UserController {
 
     }
 
+    @RateLimiter(name = "userRateLimiter")
     @GetMapping("/users/{userId}")
-    public ResponseEntity<ApiResponse<UserResponse>> getUser(@PathVariable(name = "userId") String userId) {
+    public ResponseEntity<ApiResponse<?>> getUser(@PathVariable(name = "userId") String userId) {
         if (userId == null || userId.trim().isEmpty()) {
             throw new IllegalArgumentException("User id must not be null or empty");
         }
         LOGGER.info("Get user request recieved for userId: {}", userId);
         UserResponse userResponse = userService.getUserDetails(userId);
-        ApiResponse<UserResponse> apiResponse = CommonLogic.generateApiResponse(HttpStatus.OK.value(), userResponse.isDegraded()?"PARTIAL_SUCCESS":"SUCCESS", userResponse);
+        ApiResponse<?> apiResponse = CommonLogic.generateApiResponse(HttpStatus.OK.value(), userResponse.isDegraded() ? "PARTIAL_SUCCESS" : "SUCCESS", userResponse);
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
-
-
 
     @DeleteMapping("/users/{userId}")
     public ResponseEntity<ApiResponse> deleteUser(@PathVariable(name = "userId") String userId) {
